@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de sesión | ESPE</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+
+<main class="pantalla">
+
+    <div class="paso">
+        <span class="numero">2</span>
+        Paso 2: Inicio de sesión
+    </div>
+
+    <div class="contenedor">
+
+        <header>
+            <h1>Portal Estudiantil ESPE</h1>
+            <p>Ingeniería de Seguridad de Software</p>
+            <p>Sistema de autenticación con Python y bcrypt</p>
+        </header>
+
+        <section class="tarjeta">
+
+            <div class="titulo-formulario">
+                <div class="icono">🔒</div>
+                <div>
+                    <h2>Iniciar sesión</h2>
+                    <p>Ingresa con tu cuenta para acceder al Portal Estudiantil.</p>
+                </div>
+            </div>
+
+            <form id="formLogin">
+
+                <label for="usuario">Usuario</label>
+                <input type="text"
+                       id="usuario"
+                       placeholder="Ingresa tu usuario"
+                       autocomplete="username"
+                       required>
+
+                <label for="password">Contraseña</label>
+                <input type="password"
+                       id="password"
+                       placeholder="Ingresa tu contraseña"
+                       autocomplete="current-password"
+                       required>
+
+                <button type="submit" id="btnLogin">
+                    Iniciar sesión
+                </button>
+
+            </form>
+
+            <p id="mensaje" role="status" aria-live="polite"></p>
+
+            <div class="enlace">
+                ¿No tienes cuenta?
+                <a href="/">Regístrate</a>
+            </div>
+
+        </section>
+
+        <footer>
+            Universidad de las Fuerzas Armadas ESPE
+        </footer>
+
+    </div>
+
+</main>
+
+<script>
+const formulario = document.getElementById("formLogin");
+const mensaje = document.getElementById("mensaje");
+const boton = document.getElementById("btnLogin");
+
+formulario.addEventListener("submit", async function(evento) {
+    evento.preventDefault();
+
+    const usuario = document.getElementById("usuario").value.trim();
+    const password = document.getElementById("password").value;
+
+    boton.disabled = true;
+    boton.textContent = "Verificando...";
+
+    try {
+        const respuesta = await fetch("/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                usuario: usuario,
+                password: password
+            })
+        });
+
+        const datos = await respuesta.json();
+
+        mensaje.textContent = datos.mensaje;
+
+        if (respuesta.ok) {
+            mensaje.className = "exito";
+            window.location.href = "/panel";
+        } else {
+            mensaje.className = "error";
+        }
+
+    } catch (error) {
+        mensaje.textContent = "Error de conexión con el servidor.";
+        mensaje.className = "error";
+    } finally {
+        boton.disabled = false;
+        boton.textContent = "Iniciar sesión";
+    }
+});
+</script>
+
+</body>
+</html>
